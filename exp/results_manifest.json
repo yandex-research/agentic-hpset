@@ -1,0 +1,230 @@
+{
+  "description": "Committed tuned single-model results. Each exp/tuned/<method>/<dataset>/report_<budget>.json is one method's evaluation at an HPO budget (number of trials). Agentic methods use their family's unified search space; see bin/<group>/README.md. The tuning/eval drivers that produced these are not included.",
+  "max_budget": 200,
+  "tabred_budget": 100,
+  "n_datasets": 45,
+  "datasets": [
+    "black-friday",
+    "california",
+    "churn",
+    "diamond",
+    "house",
+    "microsoft",
+    "tabarena/APSFailure",
+    "tabarena/Amazon_employee_access",
+    "tabarena/Another-Dataset-on-used-Fiat-500",
+    "tabarena/Bioresponse",
+    "tabarena/Diabetes130US",
+    "tabarena/E-CommereShippingData",
+    "tabarena/Food_Delivery_Time",
+    "tabarena/GiveMeSomeCredit",
+    "tabarena/HR_Analytics_Job_Change_of_Data_Scientists",
+    "tabarena/NATICUSdroid",
+    "tabarena/QSAR-TID-11",
+    "tabarena/QSAR_fish_toxicity",
+    "tabarena/airfoil_self_noise",
+    "tabarena/bank-marketing",
+    "tabarena/concrete_compressive_strength",
+    "tabarena/credit_card_clients_default",
+    "tabarena/customer_satisfaction_in_airline",
+    "tabarena/diabetes",
+    "tabarena/healthcare_insurance_expenses",
+    "tabarena/heloc",
+    "tabarena/in_vehicle_coupon_recommendation",
+    "tabarena/jm1",
+    "tabarena/kddcup09_appetency",
+    "tabarena/miami_housing",
+    "tabarena/online_shoppers_intention",
+    "tabarena/physiochemical_protein",
+    "tabarena/polish_companies_bankruptcy",
+    "tabarena/qsar-biodeg",
+    "tabarena/splice",
+    "tabarena/taiwanese_bankruptcy_prediction",
+    "tabarena/wine_quality",
+    "tabred/cooking-time",
+    "tabred/delivery-eta",
+    "tabred/ecom-offers",
+    "tabred/homecredit-default",
+    "tabred/homesite-insurance",
+    "tabred/maps-routing",
+    "tabred/sberbank-housing",
+    "tabred/weather"
+  ],
+  "methods": {
+    "agentic-lightgbm": {
+      "group": "lightgbm",
+      "source": "agentic LightGBM (bin/lightgbm/)",
+      "n_datasets": 45,
+      "budgets": [
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "350",
+        "400",
+        "450",
+        "500"
+      ]
+    },
+    "agentic-mlp": {
+      "group": "mlp",
+      "source": "agentic MLP unified-v1 (bin/mlp/)",
+      "n_datasets": 45,
+      "budgets": [
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "350",
+        "400",
+        "450",
+        "500"
+      ]
+    },
+    "agentic-realmlp": {
+      "group": "realmlp",
+      "source": "agentic RealMLP (bin/realmlp/)",
+      "n_datasets": 45,
+      "budgets": [
+        "50",
+        "100",
+        "150",
+        "200"
+      ]
+    },
+    "agentic-tabicl": {
+      "group": "tabicl",
+      "source": "agentic NanoTabICL (bin/tabicl/)",
+      "n_datasets": 45,
+      "budgets": [
+        "grid"
+      ]
+    },
+    "agentic-tabm": {
+      "group": "tabm",
+      "source": "agentic TabM unified-v1 (bin/tabm/)",
+      "n_datasets": 45,
+      "budgets": [
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "350",
+        "400",
+        "450",
+        "500"
+      ]
+    },
+    "lightgbm": {
+      "group": "lightgbm",
+      "source": "LightGBM baseline (bin/lightgbm/, indices = 0)",
+      "n_datasets": 45,
+      "budgets": [
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "350",
+        "400",
+        "450",
+        "500"
+      ]
+    },
+    "mlp": {
+      "group": "mlp",
+      "source": "MLP baseline (bin/mlp/, indices = 0)",
+      "n_datasets": 45,
+      "budgets": [
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "350",
+        "400",
+        "450",
+        "500"
+      ]
+    },
+    "realmlp": {
+      "group": "realmlp",
+      "source": "RealMLP-TD baseline (bin/realmlp/base.py)",
+      "n_datasets": 45,
+      "budgets": [
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "350",
+        "400",
+        "450",
+        "500"
+      ]
+    },
+    "tabicl": {
+      "group": "tabicl",
+      "source": "NanoTabICL default recipe (bin/tabicl/)",
+      "n_datasets": 45,
+      "budgets": [
+        "grid"
+      ]
+    },
+    "tabm": {
+      "group": "tabm",
+      "source": "TabM baseline (bin/tabm/, indices = 0)",
+      "n_datasets": 45,
+      "budgets": [
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "350",
+        "400",
+        "450",
+        "500"
+      ]
+    }
+  },
+  "ensembled": {
+    "description": "exp/ensembled/<method>/<dataset>/report.json: greedy (Caruana) ensemble selection results. Selection code: bin/analysis/ensemble_select.py. Raw per-config prediction libraries not included.",
+    "methods": [
+      "agentic-lightgbm",
+      "agentic-mlp",
+      "agentic-realmlp",
+      "agentic-tabm",
+      "lightgbm",
+      "mlp",
+      "realmlp",
+      "tabm"
+    ]
+  },
+  "agent_ablation": {
+    "description": "exp/tuned/mlp-ablation-<agent>-<idx>/<dataset>/report_<budget>.json: the MLP agentic protocol re-run end-to-end by two coding agents (claude, codex), five independent runs each, over all 45 datasets at the full budget (200 trials; 100 for tabred/* and microsoft). Module packages: bin/mlp/<agent>-<idx>/. Kept out of the main tables; analysis: bin/analysis/gen_agent_ablation.py -> artifacts/agent_ablation/.",
+    "methods": [
+      "mlp-ablation-claude-1",
+      "mlp-ablation-claude-2",
+      "mlp-ablation-claude-5",
+      "mlp-ablation-claude-6",
+      "mlp-ablation-claude-7",
+      "mlp-ablation-codex-0",
+      "mlp-ablation-codex-1",
+      "mlp-ablation-codex-2",
+      "mlp-ablation-codex-3",
+      "mlp-ablation-codex-4"
+    ],
+    "n_datasets": 45
+  }
+}

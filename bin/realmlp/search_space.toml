@@ -1,0 +1,93 @@
+# RealMLP hyperparameter search space.
+# Reference: agentic-tabular-hpset/exp/realmlp/agentic_v8/0/california/tuning/config.toml
+# The Churn reference has the same model space. Only dataset paths/batch sizes vary.
+#
+# The model space matches `[space.model]` used to tune agentic-realmlp. The
+# search is the same for regression and classification — the task-dispatched
+# stages (target_preprocess, inference, loss) resolve to their `_reg` / `_clf`
+# registry at runtime, and `[space.data].path` is set per dataset.
+#
+# The tuning driver (an Optuna TPE loop, not shipped) reads this DSL:
+#   ["_tune_", "int",         low, high]          -> trial.suggest_int
+#   ["_tune_", "uniform",     low, high]          -> trial.suggest_float
+#   ["_tune_", "loguniform",  low, high]          -> trial.suggest_float(log=True)
+#   ["_tune_", "categorical", [choices...]]       -> trial.suggest_categorical
+#   a plain scalar                                -> fixed value
+# `[[space.model._if_]]` blocks add keys conditionally on a `when` predicate
+# (here gated on the sampled `is_large` flag), selecting the model-size branch
+# and its PLR width / epoch / early-stopping options.
+
+seed = 0
+n_trials = 200            # 100 for large datasets (tabred/* and microsoft)
+n_workers = 2
+
+[sampler]
+n_startup_trials = 20     # Optuna TPESampler warmup
+
+[space]
+seed = 0
+batch_size = 256          # per-dataset (see bin/realmlp base config)
+predict_batch_size = 8192
+
+[space.data]
+path = "data/<dataset>"   # set per dataset
+extract_bin_from_num = true
+bin_policy = "convert-to-cat"
+cat_policy = "ordinal"
+cache = true
+
+[space.model]
+n_hidden_layers = ["_tune_", "int", 2, 4]
+hidden_sizes = "rectangular"
+hidden_width = ["_tune_", "categorical", [256, 384, 512]]
+p_drop = ["_tune_", "uniform", 0.0, 0.5]
+act = "mish"
+plr_sigma = ["_tune_", "loguniform", 1e-2, 50.0]
+plr_lr_factor = ["_tune_", "loguniform", 5e-2, 3e-1]
+scale_lr_factor = ["_tune_", "loguniform", 2.0, 10.0]
+first_layer_lr_factor = ["_tune_", "loguniform", 0.3, 1.5]
+ls_eps_sched = "coslog4"
+ls_eps = ["_tune_", "loguniform", 5e-3, 1e-1]
+p_drop_sched = "flat_cos"
+lr = ["_tune_", "loguniform", 2e-2, 3e-1]
+wd = ["_tune_", "loguniform", 1e-3, 5e-2]
+use_ls = ["_tune_", "categorical", [false, true]]
+embedding_size = ["_tune_", "categorical", [4, 8, 16]]
+n_ens = 8
+ens_av_before_softmax = false
+one_minus_sq_mom = ["_tune_", "loguniform", 5e-3, 5e-2]
+max_one_hot_cat_size_raw = ["_tune_", "loguniform", 4.0, 33.0]
+
+# Branching trigger — must appear before _if_ so the predicate sees it.
+is_large = ["_tune_", "categorical", [false, true]]
+
+# Per-stage module index, sampled directly from `[space]`. Index 0 = the
+# meta-tuned RealMLP-TD default; higher indices are the evidence-vetted variants
+# in bin/realmlp/modules/. See bin/realmlp/README.md for the index -> module map.
+[space.model.implementation_indices]
+numerical_preprocess = ["_tune_", "categorical", [0, 1, 2]]
+categorical_preprocess = ["_tune_", "categorical", [0, 1, 2]]
+target_preprocess = ["_tune_", "categorical", [0]]
+num_embedding = ["_tune_", "categorical", [0, 1]]
+cat_embedding = ["_tune_", "categorical", [0, 1]]
+model = ["_tune_", "categorical", [0, 1, 2]]
+train = ["_tune_", "categorical", [0, 1, 2]]
+optimizer = ["_tune_", "categorical", [0, 1]]
+inference = ["_tune_", "categorical", [0]]
+loss = ["_tune_", "categorical", [0, 1]]
+
+[[space.model._if_]]
+when = { is_large = false }
+plr_hidden_1 = 16
+plr_hidden_2 = 4
+n_epochs = 256
+use_early_stopping = false
+
+[[space.model._if_]]
+when = { is_large = true }
+plr_hidden_1 = ["_tune_", "categorical", [8, 16, 32, 64]]
+plr_hidden_2 = ["_tune_", "categorical", [8, 16, 32, 64]]
+n_epochs = ["_tune_", "categorical", [256, 512]]
+use_early_stopping = true
+early_stopping_multiplicative_patience = 3
+early_stopping_additive_patience = 40

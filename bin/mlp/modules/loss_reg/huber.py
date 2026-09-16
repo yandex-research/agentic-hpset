@@ -1,0 +1,13 @@
+from __future__ import annotations
+
+import torch
+import torch.nn.functional as F
+
+from bin.mlp.core import Dataset
+
+
+def loss_reg_v1(preds: torch.Tensor, targets: torch.Tensor, _dataset_meta: Dataset) -> torch.Tensor:
+    return F.huber_loss(preds, targets)
+
+
+__all__ = ["loss_reg_v1"]

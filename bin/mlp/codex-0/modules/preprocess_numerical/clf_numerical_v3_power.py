@@ -1,0 +1,42 @@
+# ruff: noqa
+"""Standalone implementation for ``numerical_preprocess_v3``."""
+
+from __future__ import annotations
+from typing import Any
+import numpy as np
+import sklearn.preprocessing
+
+
+def _non_constant_mask(values: np.ndarray) -> np.ndarray:
+    return np.array(
+        [len(np.unique(column[~np.isnan(column)])) > 1 for column in values.T],
+        dtype=bool,
+    )
+
+
+def numerical_preprocess_v3(
+    x_num: dict[str, np.ndarray] | None, _config: dict[str, Any] | None = None
+) -> tuple[dict[str, np.ndarray] | None, dict[str, object]]:
+    if x_num is None:
+        return (None, {'imputer': None, 'transformer': None, 'keep_mask': None})
+    keep_mask = _non_constant_mask(x_num['train'])
+    if keep_mask.sum() == 0:
+        return (None, {'imputer': None, 'transformer': None, 'keep_mask': keep_mask})
+    imputer = sklearn.impute.SimpleImputer(strategy='median')
+    transformer = sklearn.preprocessing.PowerTransformer(
+        method='yeo-johnson', standardize=True
+    )
+    train = imputer.fit_transform(x_num['train'][:, keep_mask])
+    transformer.fit(train)
+    transformed = {
+        part: transformer.transform(imputer.transform(values[:, keep_mask]))
+        for part, values in x_num.items()
+    }
+    transformed = {
+        part: np.nan_to_num(values).astype(np.float32)
+        for part, values in transformed.items()
+    }
+    return (
+        transformed,
+        {'imputer': imputer, 'transformer': transformer, 'keep_mask': keep_mask},
+    )

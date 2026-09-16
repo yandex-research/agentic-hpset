@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-tabular"
+version = "0.1.0"
+description = "Modular tabular model families (MLP, TabM, LightGBM, TabICL, RealMLP) with agentic module search, plus the results and analysis pipeline."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
+# Core dependencies: enough to run the analysis pipeline (regenerate artifacts/
+# from exp/) and the shared model scaffolding.
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "scipy>=1.13",
+    "scikit-learn>=1.5",
+    "optuna>=4.0",
+    "matplotlib>=3.8",
+]
+
+[project.optional-dependencies]
+# Deep families (MLP, TabM) and the in-context TabICL model.
+torch = ["torch>=2.5"]
+tabicl = ["torch>=2.5", "huggingface-hub"]
+# Gradient boosting.
+lightgbm = ["lightgbm>=4.0"]
+# RealMLP wraps pytabkit's RealMLP-TD.
+realmlp = ["torch>=2.5", "pytabkit>=1.7.3", "delu>=0.0.26", "loguru", "tomli-w"]
+# Everything, to run every family.
+all = [
+    "torch>=2.5",
+    "huggingface-hub",
+    "lightgbm>=4.0",
+    "pytabkit>=1.7.3",
+    "delu>=0.0.26",
+    "loguru",
+    "tomli-w",
+]
+
+[tool.setuptools.packages.find]
+include = ["bin*"]
+
+[tool.setuptools.package-data]
+"bin.realmlp" = ["search_space.toml"]
